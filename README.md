@@ -1,5 +1,7 @@
 # pythologist-image-utilities
 
+For function details please [Read The Docs](https://jason-weirather.github.io/pythologist-image-utilities/)
+
 Functions for working with image data in python
 
 ### About
