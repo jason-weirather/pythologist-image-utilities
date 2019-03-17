@@ -2,11 +2,25 @@ from tifffile import TiffFile
 import numpy as np
 import pandas as pd
 import sys
+from scipy.ndimage.morphology import binary_dilation
 #from random import random
 """
 A set of functions to help read / modify images
 """
 
+def binary_image_dilation(np_array,steps=1):
+    """
+    For an input image that gets set to 0 or 1, expand the 1's by the number of steps
+
+    Args:
+        np_array (numpy.array): a 2d image
+        steps (int): number of pixels to expand
+    Returns:
+        numpy.array: Image with that has been expanded
+    """
+    img = make_binary_image_array(np_array)
+    img = binary_dilation(img,iterations=steps).astype(np.uint8)
+    return img
 
 def median_id_coordinates(np_array,exclude_points=None):
     """
