@@ -1,0 +1,390 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Welcome to pythologist-image-utilities’s documentation! &mdash; pythologist-image-utilities 1.0.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="#" class="icon icon-home"> pythologist-image-utilities
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">Welcome to pythologist-image-utilities’s documentation!</a></li>
+<li><a class="reference internal" href="#readme-file">Readme File</a></li>
+<li><a class="reference internal" href="#pythologist-image-utilities">pythologist-image-utilities</a><ul>
+<li><a class="reference internal" href="#about">About</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-pythologist_image_utilities">Modules</a></li>
+<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+</ul>
+</div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="#">pythologist-image-utilities</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="#">Docs</a> &raquo;</li>
+        
+      <li>Welcome to pythologist-image-utilities’s documentation!</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="welcome-to-pythologist-image-utilities-s-documentation">
+<h1>Welcome to pythologist-image-utilities’s documentation!<a class="headerlink" href="#welcome-to-pythologist-image-utilities-s-documentation" title="Permalink to this headline">¶</a></h1>
+</div>
+<div class="section" id="readme-file">
+<h1>Readme File<a class="headerlink" href="#readme-file" title="Permalink to this headline">¶</a></h1>
+</div>
+<div class="section" id="pythologist-image-utilities">
+<h1>pythologist-image-utilities<a class="headerlink" href="#pythologist-image-utilities" title="Permalink to this headline">¶</a></h1>
+<p>Functions for working with image data in python</p>
+<div class="section" id="about">
+<h2>About<a class="headerlink" href="#about" title="Permalink to this headline">¶</a></h2>
+<p>This set of functions are used in the construction of pythologist-reader intermediate storage format, and in the analysis of image data .. finding neighbors .. or the generation of images.</p>
+</div>
+</div>
+<div class="section" id="module-pythologist_image_utilities">
+<span id="modules"></span><h1>Modules<a class="headerlink" href="#module-pythologist_image_utilities" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="pythologist_image_utilities.flood_fill">
+<code class="descclassname">pythologist_image_utilities.</code><code class="descname">flood_fill</code><span class="sig-paren">(</span><em>image</em>, <em>x</em>, <em>y</em>, <em>exit_criteria</em>, <em>max_depth=1000</em>, <em>recursion=0</em>, <em>visited=None</em>, <em>border_trim=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pythologist_image_utilities.html#flood_fill"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pythologist_image_utilities.flood_fill" title="Permalink to this definition">¶</a></dt>
+<dd><p>There is a flood_fill in scikit-image 0.15.dev0, but it is not faster than this
+for this application.  It may be good to revisit skikit’s implemention if it is optimized.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>image</strong> (<em>numpy.array</em>) – a 2d numpy array image</li>
+<li><strong>x</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – x starting coordinate</li>
+<li><strong>y</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – y starting coordinate</li>
+<li><strong>exit_criteria</strong> (<em>function</em>) – a function for which to exit i.e. <code class="docutils literal notranslate"><span class="pre">lambda</span> <span class="pre">x:</span> <span class="pre">x!=0</span></code></li>
+<li><strong>max_depth</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – a maximum recurssion depth</li>
+<li><strong>recursion</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – not set by user, used to keep track of recursion depth</li>
+<li><strong>visited</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)"><em>list</em></a>) – list of (x,y) tuple representing coordinates that have been visited</li>
+<li><strong>border_trim</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – the size of the border to avoid on the edge</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">the filled image</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">numpy.array</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pythologist_image_utilities.image_edges">
+<code class="descclassname">pythologist_image_utilities.</code><code class="descname">image_edges</code><span class="sig-paren">(</span><em>image</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pythologist_image_utilities.html#image_edges"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pythologist_image_utilities.image_edges" title="Permalink to this definition">¶</a></dt>
+<dd><p>Take an image of cells where pixel intensitiy integer values represent cell ids
+(fully filled-in) and return just the edges</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>image</strong> (<em>numpy.array</em>) – A 2d numpy array of integers coding for cell IDs</li>
+<li><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – If true output more details to stderr</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">an output image of just edges</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">numpy.array</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pythologist_image_utilities.make_binary_image_array">
+<code class="descclassname">pythologist_image_utilities.</code><code class="descname">make_binary_image_array</code><span class="sig-paren">(</span><em>np_array</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pythologist_image_utilities.html#make_binary_image_array"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pythologist_image_utilities.make_binary_image_array" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make a binary (one channel) image from a drawn color image</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>np_array</strong> (<em>numpy.array</em>) – </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">an array that is 1 where something (anything) existed vs 0 where there was nothing</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">numpy.array</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pythologist_image_utilities.map_image_ids">
+<code class="descclassname">pythologist_image_utilities.</code><code class="descname">map_image_ids</code><span class="sig-paren">(</span><em>image</em>, <em>remove_zero=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pythologist_image_utilities.html#map_image_ids"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pythologist_image_utilities.map_image_ids" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert an image into a list of coordinates and the id (coded by pixel integer value)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>image</strong> (<em>numpy.array</em>) – A numpy 2d array with the integer values representing cell IDs</li>
+<li><strong>remove_zero</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – If True (default), remove all zero pixels</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A pandas dataframe with columns shaped as &lt;x&gt;&lt;y&gt;&lt;id&gt;</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">pandas.DataFrame</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pythologist_image_utilities.median_id_coordinates">
+<code class="descclassname">pythologist_image_utilities.</code><code class="descname">median_id_coordinates</code><span class="sig-paren">(</span><em>np_array</em>, <em>exclude_points=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pythologist_image_utilities.html#median_id_coordinates"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pythologist_image_utilities.median_id_coordinates" title="Permalink to this definition">¶</a></dt>
+<dd><p>Locate a coordinate near the center of each object in an image</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>np_array</strong> (<em>numpy.array</em>) – Take an image where pixels code for the IDs</li>
+<li><strong>exclude_points</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)"><em>list</em></a>) – optional. a list of tuples of ‘x’,’y’ coordinates. to exclude from being possible median outputs</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">DataFrame indexed by ID with a near median ‘x’, and median ‘y’ for that ID</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">pandas.DataFrame</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pythologist_image_utilities.read_tiff_stack">
+<code class="descclassname">pythologist_image_utilities.</code><code class="descname">read_tiff_stack</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pythologist_image_utilities.html#read_tiff_stack"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pythologist_image_utilities.read_tiff_stack" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read in a tiff filestack into individual images and their metadata</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – a path to a tiff file</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">a list of dictionary entries keyed by ‘raw_meta’ and ‘raw_image’ for each image in the tiff stack</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)">list</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pythologist_image_utilities.watershed_image">
+<code class="descclassname">pythologist_image_utilities.</code><code class="descname">watershed_image</code><span class="sig-paren">(</span><em>np_array</em>, <em>starting_points</em>, <em>valid_target_points</em>, <em>steps=1</em>, <em>border=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pythologist_image_utilities.html#watershed_image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pythologist_image_utilities.watershed_image" title="Permalink to this definition">¶</a></dt>
+<dd><p>A function for expanding a set of pixels in an image from starting_points and into valid_target_points.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>np_array</strong> (<em>numpy.array</em>) – A 2d array of the image where comprised of integer values</li>
+<li><strong>starting_points</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)"><em>list</em></a>) – a list of (x,y) tuples to begin filling out from.  the values of these points</li>
+<li><strong>valid_target_points</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)"><em>list</em></a>) – a list of (x,y) tuples of valid locations to expand into</li>
+<li><strong>steps</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – the number of times to execute the watershed</li>
+<li><strong>border</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – the distance to remain away from the edge of the image</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">the image with the watershed executed</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">numpy.array</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<div class="toctree-wrapper compound">
+</div>
+</div>
+<div class="section" id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></li>
+<li><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></li>
+<li><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></li>
+</ul>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Jason L Weirather
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

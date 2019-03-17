@@ -1,0 +1,459 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pythologist_image_utilities &mdash; pythologist-image-utilities 1.0.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> pythologist-image-utilities
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pythologist-image-utilities</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="index.html">Module code</a> &raquo;</li>
+        
+      <li>pythologist_image_utilities</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for pythologist_image_utilities</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">tifffile</span> <span class="k">import</span> <span class="n">TiffFile</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="c1">#from random import random</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">A set of functions to help read / modify images</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<div class="viewcode-block" id="median_id_coordinates"><a class="viewcode-back" href="../index.html#pythologist_image_utilities.median_id_coordinates">[docs]</a><span class="k">def</span> <span class="nf">median_id_coordinates</span><span class="p">(</span><span class="n">np_array</span><span class="p">,</span><span class="n">exclude_points</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Locate a coordinate near the center of each object in an image</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        np_array (numpy.array): Take an image where pixels code for the IDs</span>
+<span class="sd">        exclude_points (list): optional. a list of tuples of &#39;x&#39;,&#39;y&#39; coordinates. to exclude from being possible median outputs</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        pandas.DataFrame: DataFrame indexed by ID with a near median &#39;x&#39;, and median &#39;y&#39; for that ID</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">nids</span> <span class="o">=</span> <span class="n">map_image_ids</span><span class="p">(</span><span class="n">np_array</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">exclude_points</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">exclude_points</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">exclude_points</span><span class="p">,</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">,</span><span class="s1">&#39;y&#39;</span><span class="p">])</span>
+        <span class="n">exclude_points</span><span class="p">[</span><span class="s1">&#39;exclude&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Yes&#39;</span>
+        <span class="n">nids</span> <span class="o">=</span> <span class="n">nids</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">exclude_points</span><span class="p">,</span><span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">,</span><span class="s1">&#39;y&#39;</span><span class="p">],</span><span class="n">how</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">)</span>
+        <span class="n">nids</span> <span class="o">=</span> <span class="n">nids</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">nids</span><span class="p">[</span><span class="s1">&#39;exclude&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">()]</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="s1">&#39;exclude&#39;</span><span class="p">)</span>
+    <span class="c1"># Get the median of the x dimension</span>
+    <span class="n">ngroup</span> <span class="o">=</span> <span class="n">nids</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">({</span><span class="s1">&#39;x&#39;</span><span class="p">:</span><span class="nb">list</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">])}))</span>
+    <span class="n">ngroup</span><span class="p">[</span><span class="s1">&#39;median_x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ngroup</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="mf">0.5</span><span class="p">,</span><span class="n">interpolation</span><span class="o">=</span><span class="s1">&#39;nearest&#39;</span><span class="p">))</span>
+    <span class="n">nids</span> <span class="o">=</span> <span class="n">nids</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">ngroup</span><span class="p">[[</span><span class="s1">&#39;median_x&#39;</span><span class="p">]],</span><span class="n">left_on</span><span class="o">=</span><span class="s1">&#39;id&#39;</span><span class="p">,</span><span class="n">right_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="c1"># Subset to y values that fall on that x median</span>
+    <span class="n">nids</span> <span class="o">=</span> <span class="n">nids</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">nids</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]</span><span class="o">==</span><span class="n">nids</span><span class="p">[</span><span class="s1">&#39;median_x&#39;</span><span class="p">]]</span>
+    <span class="n">ngroup</span> <span class="o">=</span> <span class="n">nids</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">({</span><span class="s1">&#39;x&#39;</span><span class="p">:</span><span class="nb">list</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]),</span><span class="s1">&#39;y&#39;</span><span class="p">:</span><span class="nb">list</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">])}))</span>
+    <span class="n">nmedian</span> <span class="o">=</span> <span class="n">ngroup</span><span class="o">.</span><span class="n">applymap</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="mf">0.5</span><span class="p">,</span><span class="n">interpolation</span><span class="o">=</span><span class="s1">&#39;nearest&#39;</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">nmedian</span></div>
+
+<div class="viewcode-block" id="watershed_image"><a class="viewcode-back" href="../index.html#pythologist_image_utilities.watershed_image">[docs]</a><span class="k">def</span> <span class="nf">watershed_image</span><span class="p">(</span><span class="n">np_array</span><span class="p">,</span><span class="n">starting_points</span><span class="p">,</span><span class="n">valid_target_points</span><span class="p">,</span><span class="n">steps</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">border</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A function for expanding a set of pixels in an image from starting_points and into valid_target_points.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        np_array (numpy.array): A 2d array of the image where comprised of integer values</span>
+<span class="sd">        starting_points (list): a list of (x,y) tuples to begin filling out from.  the values of these points</span>
+<span class="sd">        valid_target_points (list): a list of (x,y) tuples of valid locations to expand into</span>
+<span class="sd">        steps (int): the number of times to execute the watershed</span>
+<span class="sd">        border (int): the distance to remain away from the edge of the image</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        numpy.array: the image with the watershed executed</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">output</span> <span class="o">=</span> <span class="n">np_array</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">steps</span><span class="p">):</span>
+        <span class="n">used_target_points</span> <span class="o">=</span> <span class="n">valid_target_points</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">output</span><span class="p">,</span><span class="n">filled_points</span> <span class="o">=</span> <span class="n">_watershed_image_step</span><span class="p">(</span><span class="n">output</span><span class="p">,</span><span class="n">starting_points</span><span class="p">,</span><span class="n">used_target_points</span><span class="p">)</span>
+        <span class="n">starting_points</span> <span class="o">=</span> <span class="n">filled_points</span>
+        <span class="n">valid_target_points</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">valid_target_points</span><span class="p">)</span><span class="o">-</span><span class="nb">set</span><span class="p">(</span><span class="n">filled_points</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">output</span></div>
+
+<span class="k">def</span> <span class="nf">_watershed_image_step</span><span class="p">(</span><span class="n">np_array</span><span class="p">,</span><span class="n">starting_points</span><span class="p">,</span><span class="n">valid_target_points</span><span class="p">,</span><span class="n">border</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="c1">#print(&quot;START WATERSHED STEP&quot;)</span>
+    <span class="n">mod</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">&#39;mod&#39;</span><span class="p">:[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]})</span>
+    <span class="n">mod</span><span class="p">[</span><span class="s1">&#39;_key&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">fullids</span> <span class="o">=</span> <span class="n">map_image_ids</span><span class="p">(</span><span class="n">np_array</span><span class="p">,</span><span class="n">remove_zero</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">starting</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">starting_points</span><span class="p">,</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">,</span><span class="s1">&#39;y&#39;</span><span class="p">])</span><span class="o">.</span>\
+        <span class="n">merge</span><span class="p">(</span><span class="n">fullids</span><span class="p">,</span><span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">,</span><span class="s1">&#39;y&#39;</span><span class="p">])</span>
+    <span class="n">starting</span><span class="p">[</span><span class="s1">&#39;_key&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="n">starting</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">mod</span><span class="p">,</span><span class="n">on</span><span class="o">=</span><span class="s1">&#39;_key&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">mod</span><span class="p">,</span><span class="n">on</span><span class="o">=</span><span class="s1">&#39;_key&#39;</span><span class="p">)</span>
+    <span class="n">n</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">n</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">n</span><span class="p">[</span><span class="s1">&#39;mod_x&#39;</span><span class="p">])</span>
+    <span class="n">n</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">n</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">n</span><span class="p">[</span><span class="s1">&#39;mod_y&#39;</span><span class="p">])</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="n">n</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;mod_x&#39;</span><span class="p">,</span><span class="s1">&#39;mod_y&#39;</span><span class="p">,</span><span class="s1">&#39;_key&#39;</span><span class="p">])</span>
+    <span class="n">targets</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">valid_target_points</span><span class="p">,</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">,</span><span class="s1">&#39;y&#39;</span><span class="p">])</span>
+    <span class="c1">#print(&quot;HAVE VALID TAERGETS&quot;)</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="n">n</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">targets</span><span class="p">,</span><span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">,</span><span class="s1">&#39;y&#39;</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">n</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span> <span class="p">:</span>
+        <span class="k">return</span> <span class="n">np_array</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span> <span class="p">[]</span>
+    <span class="c1">#print(&quot;SHUFFLE START&quot;)</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="n">n</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">frac</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span>\
+        <span class="n">groupby</span><span class="p">([</span><span class="s1">&#39;x&#39;</span><span class="p">,</span><span class="s1">&#39;y&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">first</span><span class="p">()</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+    <span class="c1">#print(&quot;SHUFFLE END&quot;)</span>
+
+    
+    <span class="n">filled</span> <span class="o">=</span> <span class="n">n</span><span class="o">.</span><span class="n">pivot</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="s1">&#39;y&#39;</span><span class="p">,</span><span class="n">columns</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">,</span><span class="n">values</span><span class="o">=</span><span class="s1">&#39;id&#39;</span><span class="p">)</span>
+    <span class="c1"># now handle border</span>
+    <span class="n">filled</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">:</span><span class="n">border</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">filled</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">border</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">filled</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="o">*</span><span class="n">border</span><span class="p">:,</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">filled</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="o">*</span><span class="n">border</span><span class="p">:]</span> <span class="o">=</span> <span class="mi">0</span> 
+    <span class="n">fids</span> <span class="o">=</span> <span class="n">map_image_ids</span><span class="p">(</span><span class="n">filled</span><span class="p">)</span>
+    <span class="n">coords</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">fids</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">],</span><span class="n">fids</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">]))</span>
+    <span class="n">start1</span> <span class="o">=</span> <span class="n">fullids</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">fullids</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="o">!=</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">start1</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">start1</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">],</span><span class="n">start1</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">]))</span>
+    <span class="n">filled_coords</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">coords</span><span class="o">-</span><span class="n">start1</span><span class="p">)</span>
+    <span class="n">fids</span> <span class="o">=</span> <span class="n">fids</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">fullids</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;id&#39;</span><span class="p">:</span><span class="s1">&#39;oldid&#39;</span><span class="p">}),</span><span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">,</span><span class="s1">&#39;y&#39;</span><span class="p">],</span><span class="n">how</span><span class="o">=</span><span class="s1">&#39;right&#39;</span><span class="p">)</span>
+    <span class="n">fids</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">fids</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">(),</span><span class="s1">&#39;id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fids</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">fids</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">(),</span><span class="s1">&#39;oldid&#39;</span><span class="p">]</span>
+    <span class="n">filled</span> <span class="o">=</span> <span class="n">fids</span><span class="o">.</span><span class="n">pivot</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="s1">&#39;y&#39;</span><span class="p">,</span><span class="n">columns</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">,</span><span class="n">values</span><span class="o">=</span><span class="s1">&#39;id&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">filled</span><span class="p">,</span> <span class="n">filled_coords</span>
+
+<span class="k">def</span> <span class="nf">split_color_image_array</span><span class="p">(</span><span class="n">np_array</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">np_array</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span> <span class="k">return</span> <span class="p">[</span><span class="n">np_array</span><span class="p">]</span>
+    <span class="n">images</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">np_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]):</span>
+        <span class="n">image</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">x</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">np_array</span><span class="p">])</span>
+        <span class="n">images</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">images</span><span class="p">)</span>
+
+<div class="viewcode-block" id="make_binary_image_array"><a class="viewcode-back" href="../index.html#pythologist_image_utilities.make_binary_image_array">[docs]</a><span class="k">def</span> <span class="nf">make_binary_image_array</span><span class="p">(</span><span class="n">np_array</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Make a binary (one channel) image from a drawn color image</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        np_array (numpy.array) a numpy array that came from a color image</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        numpy.array: an array that is 1 where something (anything) existed vs 0 where there was nothing</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">np_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan_to_num</span><span class="p">(</span><span class="n">np_array</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">np_array</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span> <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">1</span> <span class="k">if</span> <span class="n">y</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">x</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">np_array</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">1</span> <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">([</span><span class="n">z</span> <span class="k">for</span> <span class="n">z</span> <span class="ow">in</span> <span class="n">y</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">x</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">np_array</span><span class="p">])</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="read_tiff_stack"><a class="viewcode-back" href="../index.html#pythologist_image_utilities.read_tiff_stack">[docs]</a><span class="k">def</span> <span class="nf">read_tiff_stack</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Read in a tiff filestack into individual images and their metadata</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        filename (str): a path to a tiff file</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        list: a list of dictionary entries keyed by &#39;raw_meta&#39; and &#39;raw_image&#39; for each image in the tiff stack</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">with</span> <span class="n">TiffFile</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">tif</span><span class="p">:</span>
+        <span class="n">image_stack</span> <span class="o">=</span> <span class="n">tif</span><span class="o">.</span><span class="n">asarray</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">page</span> <span class="ow">in</span> <span class="n">tif</span><span class="o">.</span><span class="n">pages</span><span class="p">:</span>
+            <span class="n">meta</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">((</span><span class="n">tag</span><span class="o">.</span><span class="n">name</span><span class="p">,</span><span class="n">tag</span><span class="o">.</span><span class="n">value</span><span class="p">)</span> <span class="k">for</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">page</span><span class="o">.</span><span class="n">tags</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+            <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;raw_meta&#39;</span><span class="p">:</span><span class="n">meta</span><span class="p">,</span><span class="s1">&#39;raw_image&#39;</span><span class="p">:</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">page</span><span class="o">.</span><span class="n">asarray</span><span class="p">())})</span>
+    <span class="k">return</span> <span class="n">data</span></div>
+
+<div class="viewcode-block" id="flood_fill"><a class="viewcode-back" href="../index.html#pythologist_image_utilities.flood_fill">[docs]</a><span class="k">def</span> <span class="nf">flood_fill</span><span class="p">(</span><span class="n">image</span><span class="p">,</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">exit_criteria</span><span class="p">,</span><span class="n">max_depth</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span><span class="n">recursion</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">visited</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">border_trim</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    There is a flood_fill in scikit-image 0.15.dev0, but it is not faster than this</span>
+<span class="sd">    for this application.  It may be good to revisit skikit&#39;s implemention if it is optimized.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        image (numpy.array): a 2d numpy array image</span>
+<span class="sd">        x (int): x starting coordinate</span>
+<span class="sd">        y (int): y starting coordinate</span>
+<span class="sd">        exit_criteria (function): a function for which to exit i.e. ``lambda x: x!=0``</span>
+<span class="sd">        max_depth (int): a maximum recurssion depth</span>
+<span class="sd">        recursion (int): not set by user, used to keep track of recursion depth</span>
+<span class="sd">        visited (list): list of (x,y) tuple representing coordinates that have been visited</span>
+<span class="sd">        border_trim (int): the size of the border to avoid on the edge</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        numpy.array: the filled image</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># return a list of coordinates we fill without visiting twice or hitting an exit condition</span>
+    <span class="k">if</span> <span class="n">visited</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span> <span class="n">visited</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">visited</span><span class="p">)</span><span class="o">&gt;=</span><span class="n">max_depth</span><span class="p">:</span> <span class="k">return</span> <span class="n">visited</span>
+    <span class="k">if</span> <span class="n">recursion</span> <span class="o">&gt;</span> <span class="mi">1000</span><span class="p">:</span> <span class="k">return</span> <span class="n">visited</span>
+    <span class="k">if</span> <span class="n">y</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="o">+</span><span class="n">border_trim</span> <span class="ow">or</span> <span class="n">y</span> <span class="o">&gt;=</span> <span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">-</span><span class="n">border_trim</span><span class="p">:</span> <span class="k">return</span> <span class="n">visited</span>
+    <span class="k">if</span> <span class="n">x</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="o">+</span><span class="n">border_trim</span> <span class="ow">or</span> <span class="n">x</span> <span class="o">&gt;=</span> <span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">border_trim</span><span class="p">:</span> <span class="k">return</span> <span class="n">visited</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">)</span> <span class="ow">in</span> <span class="n">visited</span><span class="p">:</span> <span class="k">return</span> <span class="n">visited</span>
+    <span class="k">if</span> <span class="n">exit_criteria</span><span class="p">(</span><span class="n">image</span><span class="p">[</span><span class="n">y</span><span class="p">][</span><span class="n">x</span><span class="p">]):</span> 
+        <span class="k">return</span> <span class="n">visited</span>
+    <span class="n">visited</span><span class="o">.</span><span class="n">add</span><span class="p">((</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">))</span>
+    <span class="c1"># traverse deeper</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">visited</span><span class="p">:</span>
+       <span class="n">visited</span> <span class="o">=</span> <span class="n">flood_fill</span><span class="p">(</span><span class="n">image</span><span class="p">,</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">exit_criteria</span><span class="p">,</span><span class="n">max_depth</span><span class="o">=</span><span class="n">max_depth</span><span class="p">,</span><span class="n">recursion</span><span class="o">=</span><span class="n">recursion</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">visited</span><span class="o">=</span><span class="n">visited</span><span class="p">,</span><span class="n">border_trim</span><span class="o">=</span><span class="n">border_trim</span><span class="p">)</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">x</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">y</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">visited</span><span class="p">:</span>
+        <span class="n">visited</span> <span class="o">=</span> <span class="n">flood_fill</span><span class="p">(</span><span class="n">image</span><span class="p">,</span><span class="n">x</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">exit_criteria</span><span class="p">,</span><span class="n">max_depth</span><span class="o">=</span><span class="n">max_depth</span><span class="p">,</span><span class="n">recursion</span><span class="o">=</span><span class="n">recursion</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">visited</span><span class="o">=</span><span class="n">visited</span><span class="p">,</span><span class="n">border_trim</span><span class="o">=</span><span class="n">border_trim</span><span class="p">)</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">visited</span><span class="p">:</span>
+       <span class="n">visited</span> <span class="o">=</span> <span class="n">flood_fill</span><span class="p">(</span><span class="n">image</span><span class="p">,</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">exit_criteria</span><span class="p">,</span><span class="n">max_depth</span><span class="o">=</span><span class="n">max_depth</span><span class="p">,</span><span class="n">recursion</span><span class="o">=</span><span class="n">recursion</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">visited</span><span class="o">=</span><span class="n">visited</span><span class="p">,</span><span class="n">border_trim</span><span class="o">=</span><span class="n">border_trim</span><span class="p">)</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">x</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">y</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">visited</span><span class="p">:</span>
+       <span class="n">visited</span> <span class="o">=</span> <span class="n">flood_fill</span><span class="p">(</span><span class="n">image</span><span class="p">,</span><span class="n">x</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">exit_criteria</span><span class="p">,</span><span class="n">max_depth</span><span class="o">=</span><span class="n">max_depth</span><span class="p">,</span><span class="n">recursion</span><span class="o">=</span><span class="n">recursion</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">visited</span><span class="o">=</span><span class="n">visited</span><span class="p">,</span><span class="n">border_trim</span><span class="o">=</span><span class="n">border_trim</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">visited</span></div>
+
+<div class="viewcode-block" id="map_image_ids"><a class="viewcode-back" href="../index.html#pythologist_image_utilities.map_image_ids">[docs]</a><span class="k">def</span> <span class="nf">map_image_ids</span><span class="p">(</span><span class="n">image</span><span class="p">,</span><span class="n">remove_zero</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert an image into a list of coordinates and the id (coded by pixel integer value)</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        image (numpy.array): A numpy 2d array with the integer values representing cell IDs</span>
+<span class="sd">        remove_zero (bool): If True (default), remove all zero pixels</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        pandas.DataFrame: A pandas dataframe with columns shaped as &lt;x&gt;&lt;y&gt;&lt;id&gt;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">nmap</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">))</span><span class="o">.</span><span class="n">stack</span><span class="p">()</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span><span class="o">.</span>\
+       <span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;level_0&#39;</span><span class="p">:</span><span class="s1">&#39;y&#39;</span><span class="p">,</span><span class="s1">&#39;level_1&#39;</span><span class="p">:</span><span class="s1">&#39;x&#39;</span><span class="p">,</span><span class="mi">0</span><span class="p">:</span><span class="s1">&#39;id&#39;</span><span class="p">})</span>
+    <span class="n">nmap</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">nmap</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]),</span><span class="s1">&#39;id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">if</span> <span class="n">remove_zero</span><span class="p">:</span> <span class="n">nmap</span> <span class="o">=</span> <span class="n">nmap</span><span class="p">[</span><span class="n">nmap</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="o">!=</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">nmap</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">nmap</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">nmap</span><span class="p">[[</span><span class="s1">&#39;x&#39;</span><span class="p">,</span><span class="s1">&#39;y&#39;</span><span class="p">,</span><span class="s1">&#39;id&#39;</span><span class="p">]]</span></div>
+
+
+<span class="k">def</span> <span class="nf">_test_edge</span><span class="p">(</span><span class="n">image</span><span class="p">,</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">myid</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">x_iter</span> <span class="ow">in</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]:</span>
+        <span class="n">xcoord</span> <span class="o">=</span> <span class="n">x</span><span class="o">+</span><span class="n">x_iter</span>
+        <span class="k">if</span> <span class="n">xcoord</span> <span class="o">&gt;=</span> <span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span> <span class="k">continue</span>
+        <span class="k">for</span> <span class="n">y_iter</span> <span class="ow">in</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="n">ycoord</span> <span class="o">=</span> <span class="n">y</span><span class="o">+</span><span class="n">y_iter</span>
+            <span class="k">if</span> <span class="n">x_iter</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">y_iter</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span> <span class="k">continue</span>
+            <span class="k">if</span> <span class="n">xcoord</span> <span class="o">&lt;=</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">ycoord</span> <span class="o">&lt;=</span><span class="mi">0</span><span class="p">:</span> <span class="k">continue</span>
+            <span class="k">if</span> <span class="n">ycoord</span> <span class="o">&gt;=</span> <span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span> <span class="k">continue</span>
+            <span class="k">if</span> <span class="n">image</span><span class="p">[</span><span class="n">ycoord</span><span class="p">][</span><span class="n">xcoord</span><span class="p">]</span> <span class="o">!=</span> <span class="n">myid</span><span class="p">:</span> <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">return</span> <span class="kc">False</span>
+
+
+<div class="viewcode-block" id="image_edges"><a class="viewcode-back" href="../index.html#pythologist_image_utilities.image_edges">[docs]</a><span class="k">def</span> <span class="nf">image_edges</span><span class="p">(</span><span class="n">image</span><span class="p">,</span><span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Take an image of cells where pixel intensitiy integer values represent cell ids </span>
+<span class="sd">    (fully filled-in) and return just the edges</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        image (numpy.array): A 2d numpy array of integers coding for cell IDs</span>
+<span class="sd">        verbose (bool): If true output more details to stderr</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        numpy.array: an output image of just edges</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span> <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;Making dataframe of possible neighbors.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">cmap</span> <span class="o">=</span> <span class="n">map_image_ids</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+    <span class="n">edge_image</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span> <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;Testing for edge.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="c1"># cmap</span>
+    <span class="c1">#print(cmap.head())</span>
+    <span class="n">mod</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">&#39;mod&#39;</span><span class="p">:[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]})</span>
+    <span class="n">mod</span><span class="p">[</span><span class="s1">&#39;key&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">mod</span> <span class="o">=</span> <span class="n">mod</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">mod</span><span class="p">,</span><span class="n">on</span><span class="o">=</span><span class="s1">&#39;key&#39;</span><span class="p">)</span>
+    <span class="n">mod</span><span class="p">[</span><span class="s1">&#39;keep&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">mod</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="mi">1</span> <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;mod_x&#39;</span><span class="p">])</span><span class="o">+</span><span class="nb">abs</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;mod_y&#39;</span><span class="p">])</span><span class="o">==</span><span class="mi">1</span> <span class="k">else</span> <span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">mod</span> <span class="o">=</span> <span class="n">mod</span><span class="p">[</span><span class="n">mod</span><span class="p">[</span><span class="s1">&#39;keep&#39;</span><span class="p">]</span><span class="o">==</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+    <span class="n">full</span> <span class="o">=</span> <span class="n">map_image_ids</span><span class="p">(</span><span class="n">image</span><span class="p">,</span><span class="n">remove_zero</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">attempt</span> <span class="o">=</span> <span class="n">full</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;id&#39;</span><span class="p">:</span><span class="s1">&#39;next_id&#39;</span><span class="p">,</span>
+                                  <span class="s1">&#39;x&#39;</span><span class="p">:</span><span class="s1">&#39;mod_x&#39;</span><span class="p">,</span>
+                                  <span class="s1">&#39;y&#39;</span><span class="p">:</span><span class="s1">&#39;mod_y&#39;</span><span class="p">})</span>
+    <span class="n">testedge</span> <span class="o">=</span> <span class="n">cmap</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">testedge</span><span class="p">[</span><span class="s1">&#39;key&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">testedge</span> <span class="o">=</span> <span class="n">testedge</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">mod</span><span class="p">,</span><span class="n">on</span><span class="o">=</span><span class="s1">&#39;key&#39;</span><span class="p">)</span>
+    <span class="n">testedge</span><span class="p">[</span><span class="s1">&#39;mod_x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">testedge</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">testedge</span><span class="p">[</span><span class="s1">&#39;mod_x&#39;</span><span class="p">])</span>
+    <span class="n">testedge</span><span class="p">[</span><span class="s1">&#39;mod_y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">testedge</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">testedge</span><span class="p">[</span><span class="s1">&#39;mod_y&#39;</span><span class="p">])</span>
+    <span class="n">testedge</span> <span class="o">=</span> <span class="n">testedge</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">attempt</span><span class="p">,</span><span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;mod_x&#39;</span><span class="p">,</span><span class="s1">&#39;mod_y&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s1">&#39;id!=next_id&#39;</span><span class="p">)</span>
+    <span class="n">testedge</span> <span class="o">=</span> <span class="n">testedge</span><span class="o">.</span><span class="n">loc</span><span class="p">[(</span><span class="n">testedge</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">)</span><span class="o">&amp;</span>\
+                             <span class="p">(</span><span class="n">testedge</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">]</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">)</span><span class="o">&amp;</span>\
+                             <span class="p">(</span><span class="n">testedge</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]</span><span class="o">&lt;</span><span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">&amp;</span>\
+                             <span class="p">(</span><span class="n">testedge</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">]</span><span class="o">&lt;</span><span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])]</span>
+    <span class="n">testedge</span> <span class="o">=</span> <span class="n">testedge</span><span class="p">[[</span><span class="s1">&#39;x&#39;</span><span class="p">,</span><span class="s1">&#39;y&#39;</span><span class="p">,</span><span class="s1">&#39;key&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">()</span>
+    <span class="n">testedge</span> <span class="o">=</span> <span class="n">full</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">testedge</span><span class="p">,</span><span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">,</span><span class="s1">&#39;y&#39;</span><span class="p">],</span><span class="n">how</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">)</span>
+    <span class="c1">#testedge[&#39;edge_id&#39;] = testedge[&#39;id&#39;]</span>
+    <span class="n">testedge</span><span class="p">[</span><span class="s1">&#39;edge_id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">testedge</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">testedge</span><span class="p">[</span><span class="s1">&#39;key&#39;</span><span class="p">]</span><span class="o">==</span><span class="mi">1</span><span class="p">,</span><span class="s1">&#39;edge_id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">testedge</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">testedge</span><span class="p">[</span><span class="s1">&#39;key&#39;</span><span class="p">]</span><span class="o">==</span><span class="mi">1</span><span class="p">,</span><span class="s1">&#39;id&#39;</span><span class="p">]</span>
+    <span class="c1">#print(testedge.shape)</span>
+    <span class="c1">#print(testedge.head())</span>
+
+    <span class="n">im2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">testedge</span><span class="o">.</span><span class="n">pivot</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">,</span><span class="n">index</span><span class="o">=</span><span class="s1">&#39;y&#39;</span><span class="p">,</span><span class="n">values</span><span class="o">=</span><span class="s1">&#39;edge_id&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">))</span>
+    <span class="c1"># Now lets clear the edges</span>
+    <span class="n">trim_distance</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">im2</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">trim_distance</span><span class="p">):</span>
+                <span class="n">im2</span><span class="p">[</span><span class="n">y</span><span class="p">][</span><span class="mi">0</span><span class="o">+</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="n">im2</span><span class="p">[</span><span class="n">y</span><span class="p">][</span><span class="n">im2</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="mi">1</span><span class="o">-</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">im2</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">trim_distance</span><span class="p">):</span>
+                <span class="n">im2</span><span class="p">[</span><span class="mi">0</span><span class="o">+</span><span class="n">i</span><span class="p">][</span><span class="n">x</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="n">im2</span><span class="p">[</span><span class="n">im2</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">-</span><span class="mi">1</span><span class="o">-</span><span class="n">i</span><span class="p">][</span><span class="n">x</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+
+    <span class="k">return</span> <span class="n">im2</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span></div>
+
+    <span class="c1">#cmap[&#39;is_edge&#39;] = cmap.apply(lambda x: _test_edge(image,x[&#39;x&#39;],x[&#39;y&#39;],x[&#39;id&#39;]),1)</span>
+    <span class="c1">#edge_image = np.zeros(image.shape)</span>
+    <span class="c1">#orig = map_image_ids(edge_image,remove_zero=False)</span>
+    <span class="c1">#edge_image = orig[[&#39;x&#39;,&#39;y&#39;]].merge(cmap[cmap[&#39;is_edge&#39;]==True],on=[&#39;x&#39;,&#39;y&#39;],how=&#39;left&#39;).\</span>
+    <span class="c1">#    pivot(columns=&#39;x&#39;,index=&#39;y&#39;,values=&#39;id&#39;).fillna(0)</span>
+    <span class="c1">#if verbose: sys.stderr.write(&quot;Finished making edge image.\n&quot;)</span>
+    <span class="c1">#return np.array(edge_image)</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Jason L Weirather
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
