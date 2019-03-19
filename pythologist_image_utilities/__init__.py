@@ -69,7 +69,7 @@ def watershed_image(np_array,starting_points,valid_target_points,steps=1,border=
         output,filled_points = _watershed_image_step(output,starting_points,used_target_points)
         starting_points = filled_points
         valid_target_points = list(set(valid_target_points)-set(filled_points))
-    return output
+    return np.array(output)
 
 def _watershed_image_step(np_array,starting_points,valid_target_points,border=1):
     #print("START WATERSHED STEP")
