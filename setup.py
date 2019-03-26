@@ -8,7 +8,7 @@ with open(path.join(this_folder,'README.md'),encoding='utf-8') as inf:
 
 setup(
   name='pythologist-image-utilities',
-  version='1.0.0',
+  version='1.0.1',
   test_suite='nose2.collector.collector',
   description='Functions to assist in working with image files',
   long_description=long_description,
