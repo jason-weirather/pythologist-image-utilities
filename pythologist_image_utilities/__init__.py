@@ -1,4 +1,4 @@
-from tifffile import TiffFile
+from skimage.external.tifffile import TiffFile
 import numpy as np
 import pandas as pd
 import sys
