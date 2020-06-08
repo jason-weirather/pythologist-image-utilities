@@ -286,3 +286,53 @@ def image_edges(image,verbose=False):
     #    pivot(columns='x',index='y',values='id').fillna(0)
     #if verbose: sys.stderr.write("Finished making edge image.\n")
     #return np.array(edge_image)
+
+def binary_image_list_to_indexed_image(image_list,overwrite=False,priority=None):
+    """
+    For a list of binary images (integer coded as 0 or 1), combine them together into an indexed image..
+    Where 0 means undefined, 1 means the first image in the list, 2 means the second image in the list etc
+
+    Args:
+        image_list (list): a list of binary 2d images
+        overwrite (bool): if False require images to be mutually exclusive, if true write according to priority order
+        priority (list): List of indecies of image to write as order to write
+    Returns:
+        numpy.array: Image that is a 2d image integer coded
+    """
+    def as_binary(myimg):
+        return myimg.astype(bool).astype(int)
+    if priority is None: priority = list(range(0,len(image_list)))
+    tot = np.zeros(image_list[priority[0]].shape)
+    accumulate = np.zeros(image_list[priority[0]].shape)
+    for i in priority:
+        #print(i)
+        current = -1*(as_binary(accumulate)-1)
+        index = i+1 # we need a 1-indexed layer
+        img = image_list[i]
+        if img.shape != tot.shape: raise ValueError("images need to be the same shape")
+        tot += img
+        contents = set(np.unique(img))
+        if (contents - set([0,1])) != set():
+            raise ValueError("Only binary images can be in input stack\n")
+        accumulate = (index*(img&current))+accumulate
+    if np.unique(tot).max() > 1 and overwrite is False: 
+        raise ValueError("The layers are not mutually exclusive. Use ovewrite True to allow this.")
+    return accumulate
+
+def color_indexed_image(indexed_image,color_key):
+    """
+    For an image that is indexed so that integers represent different parts,
+    color it in based on a key.
+
+    Args:
+        indexed_image (numpy.array): a 2d image of integers
+        color_key (dict): a dictionary keyed by the integer index pointing to a tuple representing the rgb color, or rgba.  These are on decimal scale 0-1.
+    Returns:
+        numpy.array: Image that is l,w,3 for RGB or l,w,4 for RGBA
+    """
+    w = len(list(color_key.values())[0])
+    oimg = np.ndarray(tuple(list(indexed_image.shape)+[w]))
+    for i in range(0,indexed_image.shape[0]):
+        for j in range(0,indexed_image.shape[1]):
+            oimg[i,j,:]=color_key[indexed_image[i,j]]
+    return oimg
