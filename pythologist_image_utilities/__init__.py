@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import sys
 from scipy.ndimage.morphology import binary_dilation
+from sklearn.neighbors import NearestNeighbors
 #from random import random
 """
 A set of functions to help read / modify images
@@ -48,7 +49,7 @@ def median_id_coordinates(np_array,exclude_points=None):
     nmedian = ngroup.applymap(lambda x: np.quantile(x,0.5,interpolation='nearest'))
     return nmedian
 
-def watershed_image(np_array,starting_points,valid_target_points,steps=1,border=1):
+def watershed_image(np_array,starting_points,valid_target_points,steps=1,border=1,fill_value=1,border_fill_value=0):
     """
     A function for expanding a set of pixels in an image from starting_points and into valid_target_points.
 
@@ -58,57 +59,32 @@ def watershed_image(np_array,starting_points,valid_target_points,steps=1,border=
         valid_target_points (list): a list of (x,y) tuples of valid locations to expand into
         steps (int): the number of times to execute the watershed
         border (int): the distance to remain away from the edge of the image
+        fill_value (int): The integer value to fill the area in with
+        border_fill_value (int): The value to fill the border area in with
 
     Returns:
         numpy.array: the image with the watershed executed
 
     """
     output = np_array.copy()
-    for i in range(0,steps):
-        used_target_points = valid_target_points.copy()
-        output,filled_points = _watershed_image_step(output,starting_points,used_target_points)
-        starting_points = filled_points
-        valid_target_points = list(set(valid_target_points)-set(filled_points))
-    return np.array(output)
+    if len(valid_target_points) > 0 and len(starting_points) > 0:
+        nn = NearestNeighbors(n_neighbors=1,radius=steps).\
+             fit(starting_points).\
+             radius_neighbors(valid_target_points,radius=steps)
+        for i,v in enumerate(nn[0]):
+            if len(v) == 0: continue
+            output[valid_target_points[i][1],valid_target_points[i][0]] = fill_value
+    output = _fill_borders(output,border,fill_value=border_fill_value)
+    return output
 
-def _watershed_image_step(np_array,starting_points,valid_target_points,border=1):
-    #print("START WATERSHED STEP")
-    mod = pd.DataFrame({'mod':[-1,0,1]})
-    mod['_key'] = 1
-    fullids = map_image_ids(np_array,remove_zero=False)
-    starting = pd.DataFrame(starting_points,columns=['x','y']).\
-        merge(fullids,on=['x','y'])
-    starting['_key'] = 1
-    n = starting.merge(mod,on='_key').merge(mod,on='_key')
-    n['x'] = n['x'].add(n['mod_x'])
-    n['y'] = n['y'].add(n['mod_y'])
-    n = n.drop(columns=['mod_x','mod_y','_key'])
-    targets = pd.DataFrame(valid_target_points,columns=['x','y'])
-    #print("HAVE VALID TAERGETS")
-    n = n.merge(targets,on=['x','y'])
-    if n.shape[0] == 0 :
-        return np_array.copy(), []
-    #print("SHUFFLE START")
-    n = n.sample(frac=1).reset_index(drop=True).\
-        groupby(['x','y']).first().reset_index()
-    #print("SHUFFLE END")
-
-    
-    filled = n.pivot(index='y',columns='x',values='id')
-    # now handle border
-    filled.iloc[0,0:border] = 0
-    filled.iloc[0:border,0] = 0
-    filled.iloc[-1*border:,0] = 0
-    filled.iloc[0,-1*border:] = 0 
-    fids = map_image_ids(filled)
-    coords = set(zip(fids['x'],fids['y']))
-    start1 = fullids.loc[fullids['id']!=0]
-    start1 = set(zip(start1['x'],start1['y']))
-    filled_coords = list(coords-start1)
-    fids = fids.merge(fullids.rename(columns={'id':'oldid'}),on=['x','y'],how='right')
-    fids.loc[fids['id'].isna(),'id'] = fids.loc[fids['id'].isna(),'oldid']
-    filled = fids.pivot(index='y',columns='x',values='id')
-    return filled, filled_coords
+def _fill_borders(img,border_size_px,fill_value):
+    if border_size_px == 0: return img.copy()
+    _temp = pd.DataFrame(img.copy())
+    _temp.iloc[0:,0:border_size_px] = fill_value
+    _temp.iloc[0:border_size_px,0:] = fill_value
+    _temp.iloc[-1*border_size_px:,0:] = fill_value
+    _temp.iloc[0:,-1*border_size_px:] = fill_value
+    return np.array(_temp)
 
 def split_color_image_array(np_array):
     if len(np_array.shape) == 2: return [np_array]
