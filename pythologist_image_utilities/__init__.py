@@ -1,13 +1,29 @@
 from skimage.external.tifffile import TiffFile
 import numpy as np
 import pandas as pd
-import sys
+import sys, hashlib, json
 from scipy.ndimage.morphology import binary_dilation
 from sklearn.neighbors import NearestNeighbors
 #from random import random
 """
 A set of functions to help read / modify images
+
 """
+def compare_tiff_contents(path1,path2):
+    """
+    For two input tif image paths, see if they have the same layer structure and image descriptions
+
+    Args:
+        path1 (str): a path to a tif
+        path2 (str): a path to a tif
+    Returns:
+        result (bool): True if they are the same image False if they are not
+    """
+    stack1 = read_tiff_stack(path1)
+    stack2 = read_tiff_stack(path2)
+    stack1 = tuple([(hashlib.sha256(x['raw_meta']['image_description']).hexdigest(),hashlib.sha256(x['raw_image'].tostring()).hexdigest()) for x in stack1])
+    stack2 = tuple([(hashlib.sha256(x['raw_meta']['image_description']).hexdigest(),hashlib.sha256(x['raw_image'].tostring()).hexdigest()) for x in stack2])
+    return json.dumps(stack1)==json.dumps(stack2)
 
 def binary_image_dilation(np_array,steps=1):
     """
@@ -126,7 +142,7 @@ def read_tiff_stack(filename):
             data.append({'raw_meta':meta,'raw_image':np.array(page.asarray())})
     return data
 
-def flood_fill(image,x,y,exit_criteria,max_depth=1000,recursion=0,visited=None,border_trim=1):
+def flood_fill(image,x,y,exit_criteria,max_depth=1000,recursion=0,visited=None,border_trim=0):
     """
     There is a flood_fill in scikit-image 0.15.dev0, but it is not faster than this
     for this application.  It may be good to revisit skikit's implemention if it is optimized.
@@ -228,10 +244,10 @@ def image_edges(image,verbose=False):
     testedge['mod_x'] = testedge['x'].add(testedge['mod_x'])
     testedge['mod_y'] = testedge['y'].add(testedge['mod_y'])
     testedge = testedge.merge(attempt,on=['mod_x','mod_y']).query('id!=next_id')
-    testedge = testedge.loc[(testedge['x']>0)&\
-                             (testedge['y']>0)&\
-                             (testedge['x']<image.shape[1])&\
-                             (testedge['y']<image.shape[0])]
+    testedge = testedge.loc[(testedge['x']>=0)&\
+                             (testedge['y']>=0)&\
+                             (testedge['x']<=image.shape[1])&\
+                             (testedge['y']<=image.shape[0])]
     testedge = testedge[['x','y','key']].drop_duplicates()
     testedge = full.merge(testedge,on=['x','y'],how='left')
     #testedge['edge_id'] = testedge['id']
@@ -242,26 +258,18 @@ def image_edges(image,verbose=False):
 
     im2 = np.array(testedge.pivot(columns='x',index='y',values='edge_id').astype(int))
     # Now lets clear the edges
-    trim_distance = 2
-    for y in range(0,im2.shape[0]):
-            for i in range(0,trim_distance):
-                im2[y][0+i] = 0
-                im2[y][im2.shape[1]-1-i] = 0
-    for x in range(0,im2.shape[1]):
-            for i in range(0,trim_distance):
-                im2[0+i][x] = 0
-                im2[im2.shape[0]-1-i][x] = 0
+    trim_distance = 0
+    #for y in range(0,im2.shape[0]):
+    #        for i in range(0,trim_distance):
+    #            im2[y][0+i] = 0
+    #            im2[y][im2.shape[1]-1-i] = 0
+    #for x in range(0,im2.shape[1]):
+    #        for i in range(0,trim_distance):
+    #            im2[0+i][x] = 0
+    #            im2[im2.shape[0]-1-i][x] = 0
 
 
     return im2.copy()
-
-    #cmap['is_edge'] = cmap.apply(lambda x: _test_edge(image,x['x'],x['y'],x['id']),1)
-    #edge_image = np.zeros(image.shape)
-    #orig = map_image_ids(edge_image,remove_zero=False)
-    #edge_image = orig[['x','y']].merge(cmap[cmap['is_edge']==True],on=['x','y'],how='left').\
-    #    pivot(columns='x',index='y',values='id').fillna(0)
-    #if verbose: sys.stderr.write("Finished making edge image.\n")
-    #return np.array(edge_image)
 
 def binary_image_list_to_indexed_image(image_list,overwrite=False,priority=None):
     """
