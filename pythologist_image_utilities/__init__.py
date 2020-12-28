@@ -19,11 +19,23 @@ def compare_tiff_contents(path1,path2):
     Returns:
         result (bool): True if they are the same image False if they are not
     """
-    stack1 = read_tiff_stack(path1)
-    stack2 = read_tiff_stack(path2)
-    stack1 = tuple([(hashlib.sha256(x['raw_meta']['image_description']).hexdigest(),hashlib.sha256(x['raw_image'].tostring()).hexdigest()) for x in stack1])
-    stack2 = tuple([(hashlib.sha256(x['raw_meta']['image_description']).hexdigest(),hashlib.sha256(x['raw_image'].tostring()).hexdigest()) for x in stack2])
-    return json.dumps(stack1)==json.dumps(stack2)
+    stack1 = hash_tiff_contents(path1)
+    stack2 = hash_tiff_contents(path2)
+    return stack1==stack2
+
+def hash_tiff_contents(path):
+    """
+    For two input tif image paths, see if they have the same layer structure and image descriptions
+
+    Args:
+        path (str): a path to a tif
+    Returns:
+        result (bool): True if they are the same image False if they are not
+    """
+    stack = read_tiff_stack(path)
+    stack = tuple([(hashlib.sha256(x['raw_meta']['image_description']).hexdigest(),hashlib.sha256(x['raw_image'].tostring()).hexdigest()) for x in stack])
+    return hashlib.sha256(json.dumps(stack).encode('utf-8')).hexdigest()
+
 
 def binary_image_dilation(np_array,steps=1):
     """
