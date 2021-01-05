@@ -1,4 +1,4 @@
-from skimage.external.tifffile import TiffFile
+from tifffile import TiffFile
 import numpy as np
 import pandas as pd
 import sys, hashlib, json
