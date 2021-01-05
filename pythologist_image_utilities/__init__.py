@@ -33,7 +33,7 @@ def hash_tiff_contents(path):
         result (bool): True if they are the same image False if they are not
     """
     stack = read_tiff_stack(path)
-    stack = tuple([(hashlib.sha256(x['raw_meta']['image_description']).hexdigest(),hashlib.sha256(x['raw_image'].tostring()).hexdigest()) for x in stack])
+    stack = tuple([(hashlib.sha256(x['raw_meta']['ImageDescription'].encode('utf-8')).hexdigest(),hashlib.sha256(x['raw_image'].tostring()).hexdigest()) for x in stack])
     return hashlib.sha256(json.dumps(stack).encode('utf-8')).hexdigest()
 
 
