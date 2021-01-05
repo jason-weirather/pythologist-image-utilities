@@ -26,6 +26,6 @@ setup(
   packages=['pythologist_image_utilities'],
   install_requires=['pandas>=0.23.0',
                     'numpy',
-                    'tifffile>=2020.12.8',
+                    'tifffile>=2019.7.26',
                     'scipy']
 )
